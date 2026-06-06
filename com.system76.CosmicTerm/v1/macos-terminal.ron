@@ -1,0 +1,37 @@
+(
+    name: "macOS Terminal",
+    foreground: "#c6c6c6",
+    cursor: "#c6c6c6",
+    bright_foreground: "#ffffff",
+    dim_foreground: "#8e8e8e",
+    normal: (
+        black: "#1c1c1c",
+        red: "#ff5f56",
+        green: "#29c940",
+        yellow: "#ffbd2e",
+        blue: "#007aff",
+        magenta: "#bf5af2",
+        cyan: "#5ac8fa",
+        white: "#d4d4d4"
+    ),
+    bright: (
+        black: "#3d3d3d",
+        red: "#ff6961",
+        green: "#34c759",
+        yellow: "#ffd60a",
+        blue: "#0a84ff",
+        magenta: "#d783ff",
+        cyan: "#64d2ff",
+        white: "#ffffff"
+    ),
+    dim: (
+        black: "#0d0d0d",
+        red: "#cc4b48",
+        green: "#218432",
+        yellow: "#cc7a00",
+        blue: "#005cc8",
+        magenta: "#9948c2",
+        cyan: "#3f8fca",
+        white: "#a0a0a0"
+    ),
+)

@@ -1,0 +1,9 @@
+(
+    output: "all",
+    source: Path("/home/lama/Bilder/macOS-Wallpapers/Ventura-dark.jpg"),
+    filter_by_theme: false,
+    rotation_frequency: 0,
+    filter_method: Lanczos,
+    scaling_mode: Zoom,
+    sampling_method: Alphanumeric,
+)
