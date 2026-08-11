@@ -1,7 +1,10 @@
 # Architektur: Coworker-Infrastruktur für Krypto- & Aktien-Trading
 
-**Status:** 📐 Architektur-Entwurf — Umsetzung erfolgt zuhause mit Homelab-Zugriff (kein Netzwerkzugriff
-auf die Proxmox-Nodes von dieser Remote-Umgebung aus).
+**Status:** ✅ Architektur-Planung abgeschlossen — Umsetzung offen, erfolgt zuhause mit Homelab-Zugriff
+(kein Netzwerkzugriff auf die Proxmox-Nodes von dieser Remote-Umgebung aus).
+
+> **Hinweis:** Ein Teil der hier beschriebenen Container/Dienste existiert im Homelab bereits. Bevor
+> irgendetwas neu aufgesetzt wird, zuerst die Bestandsaufnahme aus der ToDo-Liste unten durchführen.
 
 ## Überblick
 
@@ -102,11 +105,17 @@ Empfehlung: **keinen dritten/vierten Hermes deployen**, sondern den bestehenden 
 - **Langzeitgedächtnis**: jede finale Hermes-Entscheidung + Begründung zusätzlich als Kurzfassung in
   Qdrant `ai_memory` ablegen (`/webhook/qdrant-store`) — damit spätere Auswertung/Reflexion möglich ist.
 
-## Offene Punkte (werden zuhause mit Homelab-Zugriff geklärt)
-- **Signal-Strategie**: Marko hat bereits eine Kauf-/Verkaufs-Strategie/Indikatoren im Kopf — wird zuhause
-  ergänzt und in die `signals`-Tabelle/n8n-Berechnung übernommen, statt hier eine neue zu erfinden.
-- **OpenClaw-Konfiguration**: bereits im Homelab vorhanden, genaue Einbindung in die zwei neuen
-  Coworker-CTs folgt zuhause.
-- **TradingView-Zugriff**: Scraping mit Rate-Limiting vs. Pine-Script-Alert-Webhooks — Entscheidung
-  zuhause anhand der bestehenden OpenClaw-Fähigkeiten.
-- **CT-IDs, IP-Adressen, Node-Zuweisung** der zwei neuen Coworker-Container.
+## ToDo (zuhause)
+- [ ] **Bestandsaufnahme zuerst**: prüfen, welche der oben beschriebenen Container/Dienste (Coworker,
+  OpenClaw, DBs) bereits laufen (`pct list` auf allen 3 Nodes) — nur fehlende Teile neu aufsetzen, keine
+  Duplikate anlegen.
+- [ ] **Signal-Strategie**: Markos bestehende Kauf-/Verkaufs-Strategie/Indikatoren dokumentieren und in
+  die `signals`-Tabelle/n8n-Berechnung übernehmen, statt eine neue zu erfinden.
+- [ ] **OpenClaw-Einbindung**: bestehenden OpenClaw-Agent in die zwei Coworker-CTs einbinden bzw.
+  vorhandene Einbindung prüfen/übernehmen.
+- [ ] **TradingView-Zugriff festlegen**: Scraping mit Rate-Limiting vs. Pine-Script-Alert-Webhooks — anhand
+  der bestehenden OpenClaw-Fähigkeiten entscheiden.
+- [ ] **CT-IDs, IP-Adressen, Node-Zuweisung** der zwei Coworker-Container festhalten (neu oder bereits
+  vorhanden).
+- [ ] Fehlende Bausteine aus diesem Dokument (Hermes-Tools, Postgres-DBs, n8n-Workflows,
+  Grafana-Signal-Dashboard) ergänzen — nur was laut Bestandsaufnahme wirklich fehlt.
