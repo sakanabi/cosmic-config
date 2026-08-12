@@ -16,6 +16,7 @@ OpenClaw-Agent (24/7, im jeweiligen Coworker-CT)
         ▼
 n8n-Workflow "Job Intake & Processing" (bestehende n8n-Instanz, CT200)
         │  Normalisierung, Deduplizierung, Enrichment, Indikator-/Signal-Berechnung
+        │  (inkl. Candlestick-Muster-Erkennung via TA-Lib, siehe Komponente 6)
         ▼
 PostgreSQL-DB (thema-eigen, auf bestehender Instanz CT110)
         │  strukturierte Ablage (Kurse, News, Signale)
@@ -86,6 +87,32 @@ Empfehlung: **keinen dritten/vierten Hermes deployen**, sondern den bestehenden 
 - Damit ist jederzeit auf einen Blick sichtbar, wann laut Berechnung ein guter Einstiegs- bzw.
   Verkaufszeitpunkt ist — nicht nur im Chat, sondern dauerhaft im Dashboard.
 
+### 6. Candlestick-Muster als Indikator
+- **Kein Neubau der Erkennung** — dafür **TA-Lib** nutzen (Standard-Bibliothek für technische Analyse,
+  Python/Node-Bindings vorhanden), die ~60 fertige, geprüfte `CDL*`-Erkennungsfunktionen für praktisch
+  alle gängigen Candlestick-Muster mitbringt.
+- Läuft als zusätzlicher Schritt in der bestehenden n8n-Pipeline (Function-/Code-Node oder kleiner
+  Python-Sidecar) auf den OHLC-Daten von TradingView/CoinMarketCap — gilt für **beide Themen** (Krypto
+  und Aktien) gleich.
+- Ergebnis (Muster-Name, Richtung, Verlässlichkeits-Einschätzung) wird zusätzlich in die `signals`-Tabelle
+  geschrieben und im Grafana-Dashboard als weitere Marker-Kategorie angezeigt — gleicher Signalfluss wie
+  bereits geplant, nur mit einer zusätzlichen, breiteren Signalquelle neben der eigentlichen
+  Signal-Strategie.
+
+**Musterliste (bullisch und bärisch, gilt gleich für Krypto und Aktien):**
+
+| Kategorie | Muster |
+|---|---|
+| Bullische Umkehr (Ende Abwärtstrend) | Hammer, Inverted Hammer (braucht Bestätigung), Bullish Engulfing, Morning Star, Piercing Line, Three White Soldiers, Bullish Harami, Tweezer Bottom, Bullish Abandoned Baby (selten), Dragonfly Doji |
+| Bärische Umkehr (Ende Aufwärtstrend) | Hanging Man, Shooting Star, Bearish Engulfing, Evening Star, Dark Cloud Cover, Three Black Crows, Bearish Harami, Tweezer Top, Bearish Abandoned Baby (selten), Gravestone Doji |
+| Neutral/Fortsetzung (Richtung kontextabhängig) | Doji, Spinning Top, Marubozu (Richtung je Farbe, starkes Momentum), Rising Three Methods (bullische Fortsetzung), Falling Three Methods (bärische Fortsetzung) |
+
+**Verlässlichkeits-Hinweis:** Einzelne Muster sind in der TA-Literatur unterschiedlich stark belastbar
+(z. B. gelten Engulfing/Morning-Evening-Star als robuster als ein einzelner Doji). Grundsatz für die
+Umsetzung: Candlestick-Signale nie allein verwenden, sondern immer in Kombination mit Trendkontext,
+Volumen-Bestätigung und Nähe zu Unterstützung/Widerstand gewichten — keine erfundenen Trefferquoten,
+sondern als zusätzlicher Baustein neben der eigentlichen Signal-Strategie (siehe ToDo unten).
+
 ## Ideen & Vorschläge
 
 - **Sentiment-Vorverarbeitung**: News/Social-Daten vor Hermes durch ein lokales Ollama-Modell
@@ -111,6 +138,9 @@ Empfehlung: **keinen dritten/vierten Hermes deployen**, sondern den bestehenden 
   Duplikate anlegen.
 - [ ] **Signal-Strategie**: Markos bestehende Kauf-/Verkaufs-Strategie/Indikatoren dokumentieren und in
   die `signals`-Tabelle/n8n-Berechnung übernehmen, statt eine neue zu erfinden.
+- [ ] **Candlestick-Muster einbauen**: TA-Lib in die n8n-Pipeline (oder Python-Sidecar) integrieren,
+  Musterliste aus Komponente 6 auf OHLC-Daten laufen lassen, Ergebnis in `signals`-Tabelle + Grafana
+  aufnehmen; mit der Signal-Strategie kombinieren statt isoliert zu verwenden.
 - [ ] **OpenClaw-Einbindung**: bestehenden OpenClaw-Agent in die zwei Coworker-CTs einbinden bzw.
   vorhandene Einbindung prüfen/übernehmen.
 - [ ] **TradingView-Zugriff festlegen**: Scraping mit Rate-Limiting vs. Pine-Script-Alert-Webhooks — anhand
