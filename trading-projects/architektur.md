@@ -107,19 +107,74 @@ Empfehlung: **keinen dritten/vierten Hermes deployen**, sondern den bestehenden 
 | Bärische Umkehr (Ende Aufwärtstrend) | Hanging Man, Shooting Star, Bearish Engulfing, Evening Star, Dark Cloud Cover, Three Black Crows, Bearish Harami, Tweezer Top, Bearish Abandoned Baby (selten), Gravestone Doji |
 | Neutral/Fortsetzung (Richtung kontextabhängig) | Doji, Spinning Top, Marubozu (Richtung je Farbe, starkes Momentum), Rising Three Methods (bullische Fortsetzung), Falling Three Methods (bärische Fortsetzung) |
 
+**Weitere wichtige Muster (Bestätigung / starke Umkehr / Fortsetzung):**
+
+| Kategorie | Muster |
+|---|---|
+| Bestätigungsmuster (verstärken Harami/Engulfing) | Three Inside Up/Down, Three Outside Up/Down |
+| Starke Umkehrsignale | Bullish/Bearish Belt Hold, Bullish/Bearish Kicker (Kicking — eines der stärksten Umkehrsignale überhaupt), Stick Sandwich |
+| Gap-Fortsetzung | Rising/Falling Window, Upside/Downside Tasuki Gap, Mat Hold (bullische Fortsetzung) |
+| Schwache bärische Fortsetzung | On-Neck, In-Neck, Thrusting Line |
+| Verstärkte Unentschlossenheit | Long-Legged Doji, High Wave |
+
+Damit deckt die Liste zusammen ~35 der bekanntesten und meistgenutzten Candlestick-Muster ab —
+bullisch und bärisch, gleichermaßen für Krypto und Aktien anwendbar.
+
 **Verlässlichkeits-Hinweis:** Einzelne Muster sind in der TA-Literatur unterschiedlich stark belastbar
-(z. B. gelten Engulfing/Morning-Evening-Star als robuster als ein einzelner Doji). Grundsatz für die
-Umsetzung: Candlestick-Signale nie allein verwenden, sondern immer in Kombination mit Trendkontext,
-Volumen-Bestätigung und Nähe zu Unterstützung/Widerstand gewichten — keine erfundenen Trefferquoten,
-sondern als zusätzlicher Baustein neben der eigentlichen Signal-Strategie (siehe ToDo unten).
+(z. B. gelten Engulfing/Kicker/Morning-Evening-Star als robuster als ein einzelner Doji). Grundsatz für
+die Umsetzung: Candlestick-Signale nie allein verwenden — die genaue Gewichtung über Trendkontext und
+Support/Resistance regelt Komponente 7 (Price Action). Keine erfundenen Trefferquoten, sondern ein
+zusätzlicher Baustein neben der eigentlichen Signal-Strategie (siehe ToDo unten).
+
+### 7. Price Action & Trendkontext
+Der Kursrichtungswechsel (Trendwechsel) ist essentiell und wird nicht allein am Candlestick-Muster
+festgemacht, sondern erst durch das Zusammenspiel mit dem übergeordneten Trend und wichtigen
+Kurszonen bestätigt:
+- **Trendfilter**: gleitende Durchschnitte (z. B. EMA50/EMA200) bestimmen die übergeordnete Richtung.
+- **Support/Resistance**: Swing-High/-Low-Erkennung bzw. Pivot-Points markieren relevante Kurszonen.
+- **Kernregel**: ein Candlestick-Signal aus Komponente 6 gilt nur dann als belastbar, wenn es entweder
+  mit dem übergeordneten Trend läuft (Fortsetzung) oder eine Umkehr direkt an einer
+  Support/Resistance-Zone markiert (Trendwechsel). Ohne diesen Kontext wird das Muster nur als
+  "schwaches" Signal geführt, nicht ignoriert, aber niedriger gewichtet.
+- Läuft als weiterer Schritt in derselben n8n-Pipeline, Ergebnis (Trendrichtung, aktive S/R-Zonen,
+  Gewichtung des Candlestick-Signals) fließt mit in die `signals`-Tabelle.
+
+### 8. Handelszeiten & Marktstärke
+- **Aktienbörsen (Kernzeiten):** NYSE/NASDAQ 09:30–16:00 ET (≈14:30–21:00 UTC, verschiebt sich mit der
+  US-Sommerzeit), Wiener Börse & XETRA/Frankfurt 09:00–17:30 MEZ, London Stock Exchange 08:00–16:30
+  GMT/BST, Tokyo Stock Exchange 09:00–15:00 JST (Mittagspause 11:30–12:30), Hongkong 09:30–16:00 HKT.
+- **Stärkste Phasen**: die ersten und letzten 30–60 Minuten einer Handelssitzung — dort ist Volumen und
+  Volatilität am höchsten (typische "U-förmige" Intraday-Kurve). Die Überlappung London/New York
+  (≈14:30–17:30 MEZ) ist weltweit das liquideste Zeitfenster für Aktien.
+- **Schwächste Phase**: die Mittagspause/"Lunch Lull" (≈18:00–19:30 MEZ, US-Mittagszeit) — spürbar
+  niedrigeres Volumen, oft seitwärts.
+- **Krypto (24/7)**: kein offizieller Handelsschluss, aber die Aktivität folgt trotzdem den globalen
+  Sessions — am aktivsten bei US/EU-Überlappung (≈14:00–22:00 UTC), ruhiger in der späten US-Nacht/frühen
+  Asien-Zeit. Wochenenden haben ein dünneres Orderbuch → relativ zur Liquidität größere Kursausschläge
+  möglich, wichtig für Komponente 9 (Risikomanagement).
+- **Integration**: n8n reichert jeden Datenpunkt mit einem Zeitfenster-Kontext an (welche Börse gerade
+  offen ist, ob eine Session-Überlappung aktiv ist) — fließt in die Signal-Gewichtung und ins
+  Risikomanagement ein (z. B. kleinere Positionsgrößen in ruhigen Randzeiten).
+
+### 9. Risikomanagement
+Sitzt als Regel-Schicht zwischen Hermes-Entscheidung und tatsächlicher Aktion, bevor irgendetwas mit
+echtem Geld ausgelöst wird:
+- **Positionsgrößen-Regel**: max. X % des Kapitals pro Trade riskieren (konkreter Wert wird mit Marko
+  zuhause festgelegt).
+- **Stop-Loss/Take-Profit**: gekoppelt an ATR (Average True Range) oder das letzte Swing-High/-Low statt
+  fixer Prozentwerte.
+- **Mindest-Chance-Risiko-Verhältnis** (z. B. 1:2) — ein Signal wird nur zum Trade-Kandidaten, wenn das
+  Verhältnis erreicht wird.
+- **Tagesverlust-Circuit-Breaker**: Handel pausiert automatisch, sobald eine definierte Verlustschwelle
+  am Tag erreicht ist.
+- **Cooldown** nach mehreren Fehlsignalen/-trades hintereinander.
+- **Pflicht-Bestätigung**: ab einer bestimmten Positionsgröße muss Marko manuell bestätigen, bevor
+  Hermes "scharf" handelt.
 
 ## Ideen & Vorschläge
 
 - **Sentiment-Vorverarbeitung**: News/Social-Daten vor Hermes durch ein lokales Ollama-Modell
   (mistral/llama3.2) laufen lassen, um Hermes nur mit verdichteten Signalen statt Rohtext zu füttern.
-- **Risk-/Safety-Schicht vor jeder Aktion**: ein einfacher Circuit-Breaker/Regelsatz zwischen
-  Hermes-Entscheidung und tatsächlicher Aktion (v.a. bei echtem Geld) — z. B. Max-Positionsgrößen,
-  Cooldown nach Fehlentscheidungen, Pflicht-Bestätigung ab bestimmter Schwelle.
 - **Caching/Rate-Limiting im OpenClaw-Agent**: Redis (bereits vorhanden) nutzen, um wiederholtes Scrapen
   derselben Quelle zu vermeiden und Bans zu verhindern.
 - **Infra-Monitoring zusätzlich zum Signal-Dashboard**: neue Coworker-CTs auch in Prometheus (.109)
@@ -138,9 +193,16 @@ sondern als zusätzlicher Baustein neben der eigentlichen Signal-Strategie (sieh
   Duplikate anlegen.
 - [ ] **Signal-Strategie**: Markos bestehende Kauf-/Verkaufs-Strategie/Indikatoren dokumentieren und in
   die `signals`-Tabelle/n8n-Berechnung übernehmen, statt eine neue zu erfinden.
-- [ ] **Candlestick-Muster einbauen**: TA-Lib in die n8n-Pipeline (oder Python-Sidecar) integrieren,
-  Musterliste aus Komponente 6 auf OHLC-Daten laufen lassen, Ergebnis in `signals`-Tabelle + Grafana
+- [ ] **Candlestick-Muster einbauen**: TA-Lib in die n8n-Pipeline (oder Python-Sidecar) integrieren, die
+  ~35 Muster aus Komponente 6 auf OHLC-Daten laufen lassen, Ergebnis in `signals`-Tabelle + Grafana
   aufnehmen; mit der Signal-Strategie kombinieren statt isoliert zu verwenden.
+- [ ] **Price Action einbauen**: Trendfilter (EMA50/EMA200) und Support/Resistance-Erkennung
+  (Swing-High/-Low bzw. Pivot-Points) umsetzen und zur Gewichtung der Candlestick-Signale nutzen
+  (Komponente 7).
+- [ ] **Handelszeiten-Kontext einbauen**: Session-/Öffnungszeiten-Logik in n8n ergänzen (Komponente 8),
+  inkl. Anbindung an die Signal-Gewichtung und ans Risikomanagement.
+- [ ] **Risikomanagement konfigurieren**: konkrete Werte für Positionsgröße, Stop-Loss/Take-Profit-ATR,
+  Mindest-Chance-Risiko-Verhältnis und Tagesverlust-Schwelle mit Marko festlegen (Komponente 9).
 - [ ] **OpenClaw-Einbindung**: bestehenden OpenClaw-Agent in die zwei Coworker-CTs einbinden bzw.
   vorhandene Einbindung prüfen/übernehmen.
 - [ ] **TradingView-Zugriff festlegen**: Scraping mit Rate-Limiting vs. Pine-Script-Alert-Webhooks — anhand
