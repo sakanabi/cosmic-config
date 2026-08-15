@@ -95,21 +95,32 @@ Empfehlung: **keinen dritten/vierten Hermes deployen**, sondern den bestehenden 
 - Damit ist jederzeit auf einen Blick sichtbar, wann laut Berechnung ein guter Einstiegs- bzw.
   Verkaufszeitpunkt ist — nicht nur im Chat, sondern dauerhaft im Dashboard.
 
-**Konkretes Panel-Layout (Vorschlag, angelehnt an übliche Trading-Dashboards):**
-- Obere Reihe: Stat-Panels mit realisiertem PnL (Zeitraum wählbar), Win-Rate (%), Anzahl Trades,
-  Sharpe-Ratio — als reine Kennzahlen-Kacheln, kein Fließtext.
-- Mittlere Reihe: Kursverlauf-Panel mit Candlestick-Chart, überlagert mit Signal-Markern
-  (Candlestick-Muster, Smart-Money-Concepts-Zonen, EMA9/50/200-Linien) und einem Zeitfenster-Badge aus
-  Komponente 8 (welcher Rang gerade aktiv ist).
-- Untere Reihe: Tabelle der letzten Signale/Trades mit Begründung (Muster + Indikator-Kombination, die
-  zum Signal geführt hat) — Nachvollziehbarkeit statt Blackbox.
-- **Hinweis:** Als Layout-Inspiration dient das Grundprinzip "Kennzahlen-Kacheln oben, Verlauf darunter"
-  aus gängigen Trading-Dashboards — **nicht** als Vorbild dient ein von Marko gefundener Screenshot
-  ("Claude Fable 5 · Mirofish", angebliche $401.786 PnL, x52-Multiplikator, Glücksspiel-artige
-  "Probability Lattice"-Visualisierung). Dieser Screenshot sieht nach Fake-/Scam-Werbung aus, die den
-  Namen "Claude" missbraucht, um ein angebliches Produkt seriös wirken zu lassen — kein echtes
-  Anthropic-Produkt, keine verifizierbaren Zahlen. Weder die Renditeversprechen noch die
-  Glücksspiel-Optik werden übernommen.
+**Konkretes Panel-Layout** (Anordnung/Optik nach einer von Marko gezeigten Dashboard-Vorlage —
+Kachel-Raster mit Statusleiste + KPI-Karten + breiten Analyse-Panels — befüllt mit unseren echten,
+berechneten Indikatoren statt der dort gezeigten Platzhalter-/Fantasiezahlen):
+- **Statusleiste (oben)**: Symbol/Thema (z. B. "BTC/USDT" oder "AAPL"), `LIVE`-Badge, Zeitstempel letzte
+  Aktualisierung, Badge für den aktuell aktiven Handelszeit-Rang aus Komponente 8 (1–5).
+- **KPI-Kartenreihe (Row 1)**: zwei Karten nebeneinander —
+  - Links, groß: **"Aktuelle Empfehlung"** — `KAUF`/`VERKAUF`/`HALTEN` als Headline, darunter
+    Sub-Metriken als kleine Chips: Trend-Richtung (EMA9/50/200-Ausrichtung), RSI-Wert, MACD-Status
+    (bullisch/bärisch), aktive Candlestick-/SMC-Muster-Anzahl.
+  - Rechts, kleiner: **"Letztes starkes Signal"** — Name des zuletzt ausgelösten hochgewichteten Musters
+    (z. B. "Bullish Engulfing an Support-Zone") mit Mini-Sparkline des Kursverlaufs um den Zeitpunkt.
+- **Analyse-Panel (Row 2, breit)**: links eine schmale Statsliste (aktive S/R-Zonen, EMA-Trio-Status,
+  Bollinger-Band-Breite/Squeeze-Status), rechts groß der **Candlestick-Chart** mit allen Signal-Markern
+  (Candlestick-Muster, Smart-Money-Concepts-Zonen/Order-Blocks, EMA9/50/200-Linien, Bollinger-Bänder).
+- **Analyse-Panel (Row 3, breit)**: links eine Statsliste zum Risikomanagement (aktuelle Positionsgröße,
+  Stop-Loss-Abstand, Chance-Risiko-Verhältnis des offenen/letzten Signals — Komponente 9), rechts ein
+  **Signal-Konfluenz-Verlauf**: Zeitreihe, wie viele Indikatoren (Candlestick + Trend + RSI/MACD/BB +
+  Handelszeit-Gewichtung) gleichzeitig übereinstimmten — je mehr Übereinstimmung, desto stärker das
+  Signal. Ersetzt die "Probability Lattice"/Glücksspiel-Visualisierung der Vorlage durch eine
+  nachvollziehbare, aus echten Werten berechnete Darstellung.
+- **Tabelle (unten)**: letzte Signale/Trades mit Begründung (welche Muster + Indikatoren zum Signal
+  geführt haben) — Nachvollziehbarkeit statt Blackbox.
+- **Wichtig:** Übernommen wird nur die Anordnung/Optik (Statusleiste, Kachel-Raster, breite
+  Analyse-Panels). Die in der Vorlage gezeigten Zahlen ($401.786 PnL, x52-Multiplikator, 71 % Winrate)
+  sind nicht real und werden nicht übernommen — das Dashboard zeigt ausschließlich Werte, die aus der
+  eigenen n8n-Berechnung stammen.
 
 ### 6. Candlestick-Muster als Indikator
 - **Kein Neubau der Erkennung** — dafür **TA-Lib** nutzen (Standard-Bibliothek für technische Analyse,
