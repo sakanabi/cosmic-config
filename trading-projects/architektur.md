@@ -6,6 +6,20 @@
 > **Hinweis:** Ein Teil der hier beschriebenen Container/Dienste existiert im Homelab bereits. Bevor
 > irgendetwas neu aufgesetzt wird, zuerst die Bestandsaufnahme aus der ToDo-Liste unten durchführen.
 
+## Grundsatzentscheidungen (Stand heute, mit Marko geklärt)
+
+- **Automatisierungsgrad: Nur Empfehlungen.** Das System liefert Signale + Begründung im Dashboard,
+  Marko trifft die finale Kauf-/Verkaufsentscheidung und handelt manuell. **Kein automatischer
+  Trade-Execution**, damit auch **keine Broker-/Exchange-API-Anbindung nötig** — Hermes "entscheidet"
+  im Sinne von "empfiehlt", nicht im Sinne von "löst eine Order aus".
+- **Start mit Paper-Trading/Simulation.** Die Signal-Strategie (Candlestick + Price Action + klassische
+  Indikatoren, Komponenten 6–8) wird zunächst simuliert anhand der `signals`-Tabelle validiert
+  (Backtesting), bevor mit echtem Geld gehandelt wird.
+- **Baureihenfolge: Krypto- und Aktien-Coworker parallel**, da die gemeinsame Infrastruktur (n8n, Hermes,
+  Grafana, Postgres) ohnehin geteilt aufgebaut wird.
+- **Risiko pro Trade: 1 % des Kapitals** (konservativ) — konkreter Wert für die Positionsgrößen-Regel in
+  Komponente 9.
+
 ## Überblick
 
 Pro Thema (Krypto, Aktien) die gleiche Struktur, komplett getrennt voneinander:
@@ -64,7 +78,9 @@ Hermes gebaut), `aicoincom/coinos-skills` (52★, Krypto-Kurse/CCXT/Freqtrade-An
 ### 2. Hermes-Agent für die erweiterte Entscheidung
 Empfehlung: **keinen dritten/vierten Hermes deployen**, sondern den bestehenden Hermes-Agent
 (.26:5058, POST `/agent {task}`) um zwei neue Tools/Endpoints erweitern (`krypto_decision`,
-`aktien_decision`). Begründung:
+`aktien_decision`). **Scope-Klarstellung:** Hermes' "Entscheidung" ist eine Empfehlung mit Begründung im
+Dashboard — kein automatischer Trade, keine Broker-Anbindung (siehe Grundsatzentscheidungen oben).
+Begründung:
 - Hermes arbeitet ereignisgesteuert und läuft nicht rund um die Uhr — genau das macht ihn günstig für die
   Entscheidungsschicht, ein Duplikat pro Thema würde diesen Vorteil ohne Nutzen verdoppeln.
 - Beide Themen können unterschiedliche Prompts/Tools innerhalb des gleichen Agents bekommen, ohne die
@@ -227,8 +243,8 @@ Kurszonen bestätigt:
 ### 9. Risikomanagement
 Sitzt als Regel-Schicht zwischen Hermes-Entscheidung und tatsächlicher Aktion, bevor irgendetwas mit
 echtem Geld ausgelöst wird:
-- **Positionsgrößen-Regel**: max. X % des Kapitals pro Trade riskieren (konkreter Wert wird mit Marko
-  zuhause festgelegt).
+- **Positionsgrößen-Regel**: max. **1 %** des Kapitals pro Trade riskieren (konservativ, mit Marko
+  festgelegt).
 - **Stop-Loss/Take-Profit**: gekoppelt an ATR (Average True Range) oder das letzte Swing-High/-Low statt
   fixer Prozentwerte.
 - **Mindest-Chance-Risiko-Verhältnis** (z. B. 1:2) — ein Signal wird nur zum Trade-Kandidaten, wenn das
@@ -258,7 +274,11 @@ echtem Geld ausgelöst wird:
 ## ToDo (zuhause)
 - [ ] **Bestandsaufnahme zuerst**: prüfen, welche der oben beschriebenen Container/Dienste (Coworker,
   OpenClaw, DBs) bereits laufen (`pct list` auf allen 3 Nodes) — nur fehlende Teile neu aufsetzen, keine
-  Duplikate anlegen.
+  Duplikate anlegen. Krypto- und Aktien-Coworker werden **parallel** aufgebaut (siehe
+  Grundsatzentscheidungen oben).
+- [ ] **Paper-Trading/Backtesting einrichten**: Signal-Strategie zunächst simuliert gegen historische
+  Daten in der `signals`-Tabelle validieren, bevor mit echtem Geld gehandelt wird — erst danach den
+  "Echtgeld"-Schalter überhaupt in Betracht ziehen.
 - [ ] **Signal-Strategie**: Markos bestehende Kauf-/Verkaufs-Strategie/Indikatoren dokumentieren und in
   die `signals`-Tabelle/n8n-Berechnung übernehmen, statt eine neue zu erfinden.
 - [ ] **Candlestick-Muster einbauen**: TA-Lib in die n8n-Pipeline (oder Python-Sidecar) integrieren, die
