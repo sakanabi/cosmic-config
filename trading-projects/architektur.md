@@ -139,8 +139,23 @@ zusätzlicher Baustein neben der eigentlichen Signal-Strategie (siehe ToDo unten
 Der Kursrichtungswechsel (Trendwechsel) ist essentiell und wird nicht allein am Candlestick-Muster
 festgemacht, sondern erst durch das Zusammenspiel mit dem übergeordneten Trend und wichtigen
 Kurszonen bestätigt:
-- **Trendfilter**: gleitende Durchschnitte (z. B. EMA50/EMA200) bestimmen die übergeordnete Richtung.
+- **Trendfilter**: gleitende Durchschnitte bestimmen die übergeordnete Richtung.
 - **Support/Resistance**: Swing-High/-Low-Erkennung bzw. Pivot-Points markieren relevante Kurszonen.
+
+**Klassische Indikatoren (konkrete Umsetzung des Trendfilters):**
+- **EMA-Trio (9/50/200)**: EMA9 kurzfristig/schnell (Timing für Einstiege), EMA50 mittelfristiger Trend,
+  EMA200 langfristiger Haupttrend. Kreuzungen (z. B. EMA50/EMA200 = "Golden Cross"/"Death Cross") als
+  zusätzliches Trendsignal.
+- **RSI (14 Perioden)**: Momentum-Oszillator; überkauft >70, überverkauft <30; Divergenzen zwischen
+  Kursverlauf und RSI als eigenständiges Umkehrsignal.
+- **MACD (12/26/9)**: Trendfolge-Momentum-Indikator; MACD-Linie kreuzt Signal-Linie = möglicher
+  Momentum-Wechsel, Histogram zeigt die Stärke.
+- **Bollinger Bands (20-Perioden-SMA ± 2 Standardabweichungen)**: Volatilitätsbänder; Kurs am
+  oberen/unteren Band = mögliche Überdehnung, "Band-Squeeze" (enge Bänder) = bevorstehender Ausbruch.
+- Alle vier sind bereits Standardfunktionen in `TA-Lib/ta-lib-python` (siehe Komponente 6) — keine
+  zusätzliche Bibliothek nötig, nur weitere `TA-Lib`-Aufrufe (`RSI`, `MACD`, `BBANDS`, `EMA`) im selben
+  n8n-Schritt. Fließen als weitere Spalten in dieselbe `signals`-Tabelle und dieselbe Gewichtungslogik
+  wie Candlestick-Muster und Smart-Money-Concepts — kein separater Signalpfad.
 - **Kernregel**: ein Candlestick-Signal aus Komponente 6 gilt nur dann als belastbar, wenn es entweder
   mit dem übergeordneten Trend läuft (Fortsetzung) oder eine Umkehr direkt an einer
   Support/Resistance-Zone markiert (Trendwechsel). Ohne diesen Kontext wird das Muster nur als
@@ -210,9 +225,9 @@ echtem Geld ausgelöst wird:
 - [ ] **Candlestick-Muster einbauen**: TA-Lib in die n8n-Pipeline (oder Python-Sidecar) integrieren, die
   ~35 Muster aus Komponente 6 auf OHLC-Daten laufen lassen, Ergebnis in `signals`-Tabelle + Grafana
   aufnehmen; mit der Signal-Strategie kombinieren statt isoliert zu verwenden.
-- [ ] **Price Action einbauen**: Trendfilter (EMA50/EMA200) und Support/Resistance-Erkennung
-  (Swing-High/-Low bzw. Pivot-Points) umsetzen und zur Gewichtung der Candlestick-Signale nutzen
-  (Komponente 7).
+- [ ] **Price Action einbauen**: Trendfilter (EMA9/EMA50/EMA200, RSI, MACD, Bollinger Bands via TA-Lib)
+  und Support/Resistance-Erkennung (Swing-High/-Low bzw. Pivot-Points) umsetzen und zur Gewichtung der
+  Candlestick-Signale nutzen (Komponente 7).
 - [ ] **Handelszeiten-Kontext einbauen**: Session-/Öffnungszeiten-Logik in n8n ergänzen (Komponente 8),
   inkl. Anbindung an die Signal-Gewichtung und ans Risikomanagement.
 - [ ] **Risikomanagement konfigurieren**: konkrete Werte für Positionsgröße, Stop-Loss/Take-Profit-ATR,
