@@ -11,3 +11,4 @@ via n8n-Webhook `/webhook/qdrant-store {text, source}`) übertragen.
 - [Krypto Trading](./krypto-trading.md)
 - [Aktien Trading](./aktien-trading.md)
 - [Architektur (Coworker-Infrastruktur)](./architektur.md)
+- [GitHub-Tools-Recherche](./github-tools.md)

@@ -53,6 +53,14 @@ Aktion: Alert (Telegram, sobald aktiviert) / Log / Eintrag in Qdrant ai_memory (
 - Zusätzliche Quellen (News, Social/Sentiment, sonstige Deep-Web-Suche) bleiben Teil von OpenClaws
   Aufgabe, TradingView/CoinMarketCap sind ab jetzt feste Pflichtquellen.
 
+**OpenClaw-Skills-Ökosystem (GitHub-Recherche):** OpenClaw (`openclaw/openclaw`, 386.383★) hat ein
+eigenes Skills-Ökosystem, in dem bereits fertige Trading-Skills existieren — vor Neubau prüfen, ob diese
+direkt einbindbar sind: `atilaahmettaner/tradingview-mcp` (3.970★, TradingView-MCP-Server mit
+Echtzeitdaten/TA/Screener/Backtesting — löst die TradingView-Zugriffsfrage direkt),
+`MobiusQuant/OpenMobius-skill` (641★, ICT/Smart-Money-Concepts-Wissen, explizit für OpenClaw **und**
+Hermes gebaut), `aicoincom/coinos-skills` (52★, Krypto-Kurse/CCXT/Freqtrade-Anbindung). Details siehe
+[github-tools.md](./github-tools.md).
+
 ### 2. Hermes-Agent für die erweiterte Entscheidung
 Empfehlung: **keinen dritten/vierten Hermes deployen**, sondern den bestehenden Hermes-Agent
 (.26:5058, POST `/agent {task}`) um zwei neue Tools/Endpoints erweitern (`krypto_decision`,
@@ -89,8 +97,9 @@ Empfehlung: **keinen dritten/vierten Hermes deployen**, sondern den bestehenden 
 
 ### 6. Candlestick-Muster als Indikator
 - **Kein Neubau der Erkennung** — dafür **TA-Lib** nutzen (Standard-Bibliothek für technische Analyse,
-  Python/Node-Bindings vorhanden), die ~60 fertige, geprüfte `CDL*`-Erkennungsfunktionen für praktisch
-  alle gängigen Candlestick-Muster mitbringt.
+  konkret [`TA-Lib/ta-lib-python`](https://github.com/TA-Lib/ta-lib-python), **12.186★**, offizieller
+  Python-Wrapper), die ~60 fertige, geprüfte `CDL*`-Erkennungsfunktionen für praktisch alle gängigen
+  Candlestick-Muster mitbringt.
 - Läuft als zusätzlicher Schritt in der bestehenden n8n-Pipeline (Function-/Code-Node oder kleiner
   Python-Sidecar) auf den OHLC-Daten von TradingView/CoinMarketCap — gilt für **beide Themen** (Krypto
   und Aktien) gleich.
@@ -138,6 +147,11 @@ Kurszonen bestätigt:
   "schwaches" Signal geführt, nicht ignoriert, aber niedriger gewichtet.
 - Läuft als weiterer Schritt in derselben n8n-Pipeline, Ergebnis (Trendrichtung, aktive S/R-Zonen,
   Gewichtung des Candlestick-Signals) fließt mit in die `signals`-Tabelle.
+- **Konkrete Bibliothek (GitHub-Recherche):** [`joshyattridge/smart-money-concepts`](https://github.com/joshyattridge/smart-money-concepts)
+  (1.936★, Python) implementiert Smart-Money-Concepts/ICT — Order Blocks, Fair Value Gaps, Liquidity,
+  Break-of-Structure/Change-of-Character — eine deutlich präzisere, fertige Umsetzung des
+  "Kursrichtungswechsel"-Konzepts als eine reine EMA-Kreuzung. Kandidat, um Trendfilter und
+  Support/Resistance oben direkt abzudecken statt beides von Grund auf neu zu bauen.
 
 ### 8. Handelszeiten & Marktstärke
 - **Aktienbörsen (Kernzeiten):** NYSE/NASDAQ 09:30–16:00 ET (≈14:30–21:00 UTC, verschiebt sich mit der
@@ -205,8 +219,9 @@ echtem Geld ausgelöst wird:
   Mindest-Chance-Risiko-Verhältnis und Tagesverlust-Schwelle mit Marko festlegen (Komponente 9).
 - [ ] **OpenClaw-Einbindung**: bestehenden OpenClaw-Agent in die zwei Coworker-CTs einbinden bzw.
   vorhandene Einbindung prüfen/übernehmen.
-- [ ] **TradingView-Zugriff festlegen**: Scraping mit Rate-Limiting vs. Pine-Script-Alert-Webhooks — anhand
-  der bestehenden OpenClaw-Fähigkeiten entscheiden.
+- [ ] **TradingView-Zugriff festlegen**: erst prüfen, ob `atilaahmettaner/tradingview-mcp` (3.970★) als
+  fertiger MCP-Server passt, bevor Scraping mit Rate-Limiting oder Pine-Script-Alert-Webhooks gebaut
+  werden (siehe [github-tools.md](./github-tools.md)).
 - [ ] **CT-IDs, IP-Adressen, Node-Zuweisung** der zwei Coworker-Container festhalten (neu oder bereits
   vorhanden).
 - [ ] Fehlende Bausteine aus diesem Dokument (Hermes-Tools, Postgres-DBs, n8n-Workflows,
