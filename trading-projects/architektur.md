@@ -95,6 +95,22 @@ Empfehlung: **keinen dritten/vierten Hermes deployen**, sondern den bestehenden 
 - Damit ist jederzeit auf einen Blick sichtbar, wann laut Berechnung ein guter Einstiegs- bzw.
   Verkaufszeitpunkt ist — nicht nur im Chat, sondern dauerhaft im Dashboard.
 
+**Konkretes Panel-Layout (Vorschlag, angelehnt an übliche Trading-Dashboards):**
+- Obere Reihe: Stat-Panels mit realisiertem PnL (Zeitraum wählbar), Win-Rate (%), Anzahl Trades,
+  Sharpe-Ratio — als reine Kennzahlen-Kacheln, kein Fließtext.
+- Mittlere Reihe: Kursverlauf-Panel mit Candlestick-Chart, überlagert mit Signal-Markern
+  (Candlestick-Muster, Smart-Money-Concepts-Zonen, EMA9/50/200-Linien) und einem Zeitfenster-Badge aus
+  Komponente 8 (welcher Rang gerade aktiv ist).
+- Untere Reihe: Tabelle der letzten Signale/Trades mit Begründung (Muster + Indikator-Kombination, die
+  zum Signal geführt hat) — Nachvollziehbarkeit statt Blackbox.
+- **Hinweis:** Als Layout-Inspiration dient das Grundprinzip "Kennzahlen-Kacheln oben, Verlauf darunter"
+  aus gängigen Trading-Dashboards — **nicht** als Vorbild dient ein von Marko gefundener Screenshot
+  ("Claude Fable 5 · Mirofish", angebliche $401.786 PnL, x52-Multiplikator, Glücksspiel-artige
+  "Probability Lattice"-Visualisierung). Dieser Screenshot sieht nach Fake-/Scam-Werbung aus, die den
+  Namen "Claude" missbraucht, um ein angebliches Produkt seriös wirken zu lassen — kein echtes
+  Anthropic-Produkt, keine verifizierbaren Zahlen. Weder die Renditeversprechen noch die
+  Glücksspiel-Optik werden übernommen.
+
 ### 6. Candlestick-Muster als Indikator
 - **Kein Neubau der Erkennung** — dafür **TA-Lib** nutzen (Standard-Bibliothek für technische Analyse,
   konkret [`TA-Lib/ta-lib-python`](https://github.com/TA-Lib/ta-lib-python), **12.186★**, offizieller
@@ -121,7 +137,7 @@ Empfehlung: **keinen dritten/vierten Hermes deployen**, sondern den bestehenden 
 | Kategorie | Muster |
 |---|---|
 | Bestätigungsmuster (verstärken Harami/Engulfing) | Three Inside Up/Down, Three Outside Up/Down |
-| Starke Umkehrsignale | Bullish/Bearish Belt Hold, Bullish/Bearish Kicker (Kicking — eines der stärksten Umkehrsignale überhaupt), Stick Sandwich |
+| Starke Umkehrsignale | Bullish/Bearish Belt Hold, Bullish/Bearish Kicker (Kicking — eines der stärksten Umkehrsignale überhaupt), Stick Sandwich, Bullish/Bearish Counter Attack (Counterattack Lines — gleichschließende Kerzen gegen den vorherigen Trend) |
 | Gap-Fortsetzung | Rising/Falling Window, Upside/Downside Tasuki Gap, Mat Hold (bullische Fortsetzung) |
 | Schwache bärische Fortsetzung | On-Neck, In-Neck, Thrusting Line |
 | Verstärkte Unentschlossenheit | Long-Legged Doji, High Wave |
@@ -141,6 +157,10 @@ festgemacht, sondern erst durch das Zusammenspiel mit dem übergeordneten Trend 
 Kurszonen bestätigt:
 - **Trendfilter**: gleitende Durchschnitte bestimmen die übergeordnete Richtung.
 - **Support/Resistance**: Swing-High/-Low-Erkennung bzw. Pivot-Points markieren relevante Kurszonen.
+- **Chart-Muster als zusätzliche S/R-Bestätigung**: Doppel-Top/Doppel-Boden (zwei etwa gleich hohe
+  Hochs bzw. gleich tiefe Tiefs) gelten als klassische, mehrperiodige Umkehrmuster auf Chart-Ebene —
+  ergänzen die einzelkerzenbasierten Muster aus Komponente 6 um eine Bestätigung über mehrere
+  Swing-Punkte hinweg.
 
 **Klassische Indikatoren (konkrete Umsetzung des Trendfilters):**
 - **EMA-Trio (9/50/200)**: EMA9 kurzfristig/schnell (Timing für Einstiege), EMA50 mittelfristiger Trend,
@@ -172,18 +192,26 @@ Kurszonen bestätigt:
 - **Aktienbörsen (Kernzeiten):** NYSE/NASDAQ 09:30–16:00 ET (≈14:30–21:00 UTC, verschiebt sich mit der
   US-Sommerzeit), Wiener Börse & XETRA/Frankfurt 09:00–17:30 MEZ, London Stock Exchange 08:00–16:30
   GMT/BST, Tokyo Stock Exchange 09:00–15:00 JST (Mittagspause 11:30–12:30), Hongkong 09:30–16:00 HKT.
-- **Stärkste Phasen**: die ersten und letzten 30–60 Minuten einer Handelssitzung — dort ist Volumen und
-  Volatilität am höchsten (typische "U-förmige" Intraday-Kurve). Die Überlappung London/New York
-  (≈14:30–17:30 MEZ) ist weltweit das liquideste Zeitfenster für Aktien.
-- **Schwächste Phase**: die Mittagspause/"Lunch Lull" (≈18:00–19:30 MEZ, US-Mittagszeit) — spürbar
-  niedrigeres Volumen, oft seitwärts.
+
+**Wichtigkeits-Ranking der Zeitfenster (fließt als Gewichtung in Signal-Berechnung & Risikomanagement ein):**
+
+| Rang | Zeitfenster | Charakteristik |
+|---|---|---|
+| 1 — am stärksten | Overlap London + New York, ≈14:30–17:00 MEZ | Meist die stärkste Bewegung, hohes Volumen + Liquidität, Breakouts und Richtungsentscheidungen häufig |
+| 2 — sehr wichtig | New York Open, ≈15:30–17:30 MEZ | US-Daten und News bewegen stark, hohe Volatilität möglich, Vorsicht bei impulsiven Kerzen |
+| 3 — wichtig | London/Europa Open, ≈09:00–11:00 MEZ | Oft erster echter Schub des Tages, mehr Aktivität als in der Asien-Phase, gut für Struktur/Setups |
+| 4 — eher ruhiger | Asien-Session, ≈01:00–08:00 MEZ | Oft ruhiger, aber nicht immer; gut zum Vorbereiten wichtiger Zonen, manchmal Start für spätere Trends |
+| 5 — Vorsicht | Wochenende (Krypto 24/7) | Oft dünnere Liquidität, mehr Fakeouts und unruhige Moves, Risiko/Positionsgröße anpassen |
+
+- **Schwächste Phase innerhalb des Handelstags**: die Mittagspause/"Lunch Lull" (≈18:00–19:30 MEZ,
+  US-Mittagszeit) — spürbar niedrigeres Volumen, oft seitwärts.
 - **Krypto (24/7)**: kein offizieller Handelsschluss, aber die Aktivität folgt trotzdem den globalen
-  Sessions — am aktivsten bei US/EU-Überlappung (≈14:00–22:00 UTC), ruhiger in der späten US-Nacht/frühen
+  Sessions — am aktivsten bei US/EU-Überlappung (Rang 1 oben), ruhiger in der späten US-Nacht/frühen
   Asien-Zeit. Wochenenden haben ein dünneres Orderbuch → relativ zur Liquidität größere Kursausschläge
   möglich, wichtig für Komponente 9 (Risikomanagement).
-- **Integration**: n8n reichert jeden Datenpunkt mit einem Zeitfenster-Kontext an (welche Börse gerade
-  offen ist, ob eine Session-Überlappung aktiv ist) — fließt in die Signal-Gewichtung und ins
-  Risikomanagement ein (z. B. kleinere Positionsgrößen in ruhigen Randzeiten).
+- **Integration**: n8n reichert jeden Datenpunkt mit einem Zeitfenster-Kontext an (welcher Rang aus der
+  Tabelle oben gerade aktiv ist) — fließt in die Signal-Gewichtung und ins Risikomanagement ein (z. B.
+  kleinere Positionsgrößen in Rang-4/5-Zeiten).
 
 ### 9. Risikomanagement
 Sitzt als Regel-Schicht zwischen Hermes-Entscheidung und tatsächlicher Aktion, bevor irgendetwas mit
