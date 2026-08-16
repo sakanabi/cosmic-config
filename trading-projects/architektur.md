@@ -19,6 +19,19 @@
   Grafana, Postgres) ohnehin geteilt aufgebaut wird.
 - **Risiko pro Trade: 1 % des Kapitals** (konservativ) — konkreter Wert für die Positionsgrößen-Regel in
   Komponente 9.
+- **Kapitalrahmen**: Start mit **300 € Gesamtkapital**, monatlich zusätzlich **150 €** für Aktien
+  freigegeben. Bei 1 % Risiko entspricht das zu Beginn ca. 3 € Risiko pro Krypto-Trade — sehr kleine,
+  aber realistische Positionsgrößen, die im Paper-Trading erst validiert werden, bevor größere Beträge
+  bewegt werden.
+- **Cooldown**: max. **1 Arbeitswoche (5 Handelstage)** nach Verlustserie/Circuit-Breaker-Trigger — für
+  beide Themen gleich (Komponente 9).
+- **Stop-Loss-ATR-Multiplikator** (Startwert, im Paper-Trading zu validieren): ATR(14) als Basis,
+  **Aktien 2,5–3× ATR(14)** (mehr Spielraum für die 52-Wochen-Tief-Strategie, siehe unten),
+  **Krypto 1,5–2× ATR(14)** (engerer Stop passend zum kurzen Zeithorizont — die höhere Volatilität ist
+  in ATR selbst schon enthalten, der Multiplikator muss dafür nicht zusätzlich steigen).
+- **Aktien-Universum**: kein festes kleines Watchlist, sondern Screening über das **gesamte über Flatex
+  handelbare Aktienuniversum plus Forex über OKX** — siehe Komponente 1 und 7.
+- **Krypto-Universum**: feste Watchlist von ca. **20 Coins** (Liste folgt).
 
 ## Überblick
 
@@ -66,6 +79,13 @@ Aktion: Alert (Telegram, sobald aktiviert) / Log / Eintrag in Qdrant ai_memory (
   Alternative an. Die konkrete Wahl klären wir zuhause mit Blick auf die bestehende OpenClaw-Konfiguration.
 - Zusätzliche Quellen (News, Social/Sentiment, sonstige Deep-Web-Suche) bleiben Teil von OpenClaws
   Aufgabe, TradingView/CoinMarketCap sind ab jetzt feste Pflichtquellen.
+
+**Universum pro Thema (grundlegend unterschiedlich):**
+- **Aktien-Coworker**: kein festes Watchlist, sondern Screening über das **gesamte über Flatex
+  handelbare Aktienuniversum plus Forex über OKX** — der Aktien-Coworker beobachtet also global, nicht
+  nur einzelne Symbole. Siehe 52-Wochen-Tief-Screening in Komponente 7.
+- **Krypto-Coworker**: feste, kuratierte Watchlist von ca. **20 Coins** (Liste folgt von Marko) —
+  bewusst eng, da bei Krypto Geschwindigkeit ("schnelles Geld") statt Breite im Vordergrund steht.
 
 **OpenClaw-Skills-Ökosystem (GitHub-Recherche):** OpenClaw (`openclaw/openclaw`, 386.383★) hat ein
 eigenes Skills-Ökosystem, in dem bereits fertige Trading-Skills existieren — vor Neubau prüfen, ob diese
@@ -215,6 +235,19 @@ Kurszonen bestätigt:
   "Kursrichtungswechsel"-Konzepts als eine reine EMA-Kreuzung. Kandidat, um Trendfilter und
   Support/Resistance oben direkt abzudecken statt beides von Grund auf neu zu bauen.
 
+**Aktien-spezifisches Screening: 52-Wochen-Tief-Strategie**
+- Zusätzlicher Screening-Schritt **vor** der eigentlichen Signal-Berechnung, nur für den
+  Aktien-Coworker: Aktien aus dem gesamten über Flatex handelbaren Universum, die nahe ihrem
+  **52-Wochen-Tief** handeln, werden als Kauf-Kandidat markiert (klassische Value-/Contrarian-Screening-
+  Methode) — dieselbe Logik gilt für Forex über OKX.
+- Läuft als Filter-Stufe in derselben n8n-Pipeline: erst grobes Screening über das ganze Universum
+  (52-Wochen-Tief-Nähe), dann erst Candlestick-/Price-Action-/Indikator-Berechnung (Komponente 6+7) nur
+  noch auf den gefilterten Kandidaten — sonst wäre die Datenmenge (gesamtes Flatex-Universum) für die
+  volle Pipeline zu groß.
+- Ergänzt, ersetzt aber nicht die Kernregel aus Komponente 7 (Trend + S/R + Candlestick) — das
+  52-Wochen-Tief liefert die Kandidatenliste, die Kernregel entscheidet über die tatsächliche
+  Gewichtung des Signals.
+
 ### 8. Handelszeiten & Marktstärke
 - **Aktienbörsen (Kernzeiten):** NYSE/NASDAQ 09:30–16:00 ET (≈14:30–21:00 UTC, verschiebt sich mit der
   US-Sommerzeit), Wiener Börse & XETRA/Frankfurt 09:00–17:30 MEZ, London Stock Exchange 08:00–16:30
@@ -244,14 +277,16 @@ Kurszonen bestätigt:
 Sitzt als Regel-Schicht zwischen Hermes-Entscheidung und tatsächlicher Aktion, bevor irgendetwas mit
 echtem Geld ausgelöst wird:
 - **Positionsgrößen-Regel**: max. **1 %** des Kapitals pro Trade riskieren (konservativ, mit Marko
-  festgelegt).
-- **Stop-Loss/Take-Profit**: gekoppelt an ATR (Average True Range) oder das letzte Swing-High/-Low statt
-  fixer Prozentwerte.
+  festgelegt). Kapitalrahmen siehe Grundsatzentscheidungen oben (300 € Start, +150 €/Monat für Aktien).
+- **Stop-Loss/Take-Profit**: gekoppelt an ATR (Average True Range), **Aktien 2,5–3× ATR(14)**,
+  **Krypto 1,5–2× ATR(14)** — siehe Grundsatzentscheidungen oben; Startwert, wird im Paper-Trading
+  validiert/justiert.
 - **Mindest-Chance-Risiko-Verhältnis** (z. B. 1:2) — ein Signal wird nur zum Trade-Kandidaten, wenn das
   Verhältnis erreicht wird.
 - **Tagesverlust-Circuit-Breaker**: Handel pausiert automatisch, sobald eine definierte Verlustschwelle
   am Tag erreicht ist.
-- **Cooldown** nach mehreren Fehlsignalen/-trades hintereinander.
+- **Cooldown**: max. **1 Arbeitswoche (5 Handelstage)** nach Verlustserie/Circuit-Breaker-Trigger — für
+  beide Themen gleich.
 - **Pflicht-Bestätigung**: ab einer bestimmten Positionsgröße muss Marko manuell bestätigen, bevor
   Hermes "scharf" handelt.
 
@@ -289,8 +324,13 @@ echtem Geld ausgelöst wird:
   Candlestick-Signale nutzen (Komponente 7).
 - [ ] **Handelszeiten-Kontext einbauen**: Session-/Öffnungszeiten-Logik in n8n ergänzen (Komponente 8),
   inkl. Anbindung an die Signal-Gewichtung und ans Risikomanagement.
-- [ ] **Risikomanagement konfigurieren**: konkrete Werte für Positionsgröße, Stop-Loss/Take-Profit-ATR,
-  Mindest-Chance-Risiko-Verhältnis und Tagesverlust-Schwelle mit Marko festlegen (Komponente 9).
+- [ ] **Risikomanagement konfigurieren**: Mindest-Chance-Risiko-Verhältnis und Tagesverlust-Schwelle mit
+  Marko festlegen (Komponente 9) — Positionsgröße (1 %), ATR-Multiplikatoren und Cooldown sind bereits
+  festgelegt (siehe Grundsatzentscheidungen).
+- [ ] **52-Wochen-Tief-Screening bauen**: Filter-Stufe vor der eigentlichen Signal-Pipeline für das
+  gesamte Flatex-Aktienuniversum + OKX-Forex (Komponente 7).
+- [ ] **Krypto-Watchlist eintragen**: die ca. 20 Coins von Marko in Komponente 1 ergänzen, sobald die
+  Liste vorliegt.
 - [ ] **OpenClaw-Einbindung**: bestehenden OpenClaw-Agent in die zwei Coworker-CTs einbinden bzw.
   vorhandene Einbindung prüfen/übernehmen.
 - [ ] **TradingView-Zugriff festlegen**: erst prüfen, ob `atilaahmettaner/tradingview-mcp` (3.970★) als
