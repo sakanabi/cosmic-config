@@ -347,7 +347,7 @@ echtem Geld ausgelöst wird:
   gesamte Flatex-Aktienuniversum + OKX-Forex (Komponente 7).
 - [x] **Krypto-Watchlist eintragen**: 24 Coins eingetragen in [krypto-trading.md](./krypto-trading.md)
   (XRP, SOL, TRX, HYPE, DOGE, LEO, ZEC, LINK, ADA, XLM, BCH, USD1, CC, GRAM, H, ETHFI, WLFI, SPX, JTO,
-  LIT, WLD, LTC, MORPHO, CRV) — offen: ob BTC/ETH zusätzlich aufgenommen werden.
+  LIT, WLD, LTC, MORPHO, CRV) — BTC/ETH bewusst nicht enthalten (bestätigt).
 - [ ] **OpenClaw-Einbindung**: bestehenden OpenClaw-Agent in die zwei Coworker-CTs einbinden bzw.
   vorhandene Einbindung prüfen/übernehmen.
 - [ ] **TradingView-Zugriff festlegen**: erst prüfen, ob `atilaahmettaner/tradingview-mcp` (3.970★) als

@@ -16,10 +16,7 @@ Aus CoinMarketCap-Screenshots übernommen (Top-100 nach Marktkapitalisierung + T
 XRP, SOL, TRX, HYPE, DOGE, LEO, ZEC, LINK, ADA, XLM, BCH, USD1, CC, GRAM, H, ETHFI, WLFI, SPX, JTO, LIT,
 WLD, LTC, MORPHO, CRV
 
-> **Hinweis:** In den Screenshots waren Rang 1–5 (vermutlich BTC, ETH, USDT, BNB, USDC) außerhalb des
-> sichtbaren Bereichs — bitte bestätigen, ob Bitcoin/Ethereum zusätzlich auf die Watchlist sollen, da sie
-> bei einer Krypto-Watchlist normalerweise dazugehören. Aktuell nicht enthalten, da nicht im Screenshot
-> sichtbar.
+> **Bestätigt:** BTC/ETH werden bewusst **nicht** auf die Watchlist genommen (Rückfrage geklärt).
 >
 > Passend zur bereits gewählten Primärquelle **CoinMarketCap** (siehe Infrastruktur unten) — die Liste
 > kann später über die offizielle CoinMarketCap-API automatisch aktuell gehalten werden, statt manuell
