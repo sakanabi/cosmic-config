@@ -345,8 +345,9 @@ echtem Geld ausgelöst wird:
   festgelegt (siehe Grundsatzentscheidungen).
 - [ ] **52-Wochen-Tief-Screening bauen**: Filter-Stufe vor der eigentlichen Signal-Pipeline für das
   gesamte Flatex-Aktienuniversum + OKX-Forex (Komponente 7).
-- [ ] **Krypto-Watchlist eintragen**: die ca. 20 Coins von Marko in Komponente 1 ergänzen, sobald die
-  Liste vorliegt.
+- [x] **Krypto-Watchlist eintragen**: 24 Coins eingetragen in [krypto-trading.md](./krypto-trading.md)
+  (XRP, SOL, TRX, HYPE, DOGE, LEO, ZEC, LINK, ADA, XLM, BCH, USD1, CC, GRAM, H, ETHFI, WLFI, SPX, JTO,
+  LIT, WLD, LTC, MORPHO, CRV) — offen: ob BTC/ETH zusätzlich aufgenommen werden.
 - [ ] **OpenClaw-Einbindung**: bestehenden OpenClaw-Agent in die zwei Coworker-CTs einbinden bzw.
   vorhandene Einbindung prüfen/übernehmen.
 - [ ] **TradingView-Zugriff festlegen**: erst prüfen, ob `atilaahmettaner/tradingview-mcp` (3.970★) als
