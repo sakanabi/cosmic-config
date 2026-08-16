@@ -19,12 +19,26 @@
   Grafana, Postgres) ohnehin geteilt aufgebaut wird.
 - **Risiko pro Trade: 1 % des Kapitals** (konservativ) — konkreter Wert für die Positionsgrößen-Regel in
   Komponente 9.
-- **Kapitalrahmen**: Start mit **300 € Gesamtkapital**, monatlich zusätzlich **150 €** für Aktien
-  freigegeben. Bei 1 % Risiko entspricht das zu Beginn ca. 3 € Risiko pro Krypto-Trade — sehr kleine,
-  aber realistische Positionsgrößen, die im Paper-Trading erst validiert werden, bevor größere Beträge
-  bewegt werden.
+- **Kapitalrahmen** (korrigiert — zwei getrennte Kapitaltöpfe statt einem gemeinsamen):
+  - **Krypto (OKX)**: Start mit **300 €**, monatlich **+50 €** zusätzlich.
+  - **Aktien**: Start mit **150 €**, monatlich **+150 €** zusätzlich.
+  - Bei 1 % Risiko entspricht das zu Beginn ca. **3 € Risiko pro Krypto-Trade** bzw. ca.
+    **1,50 € Risiko pro Aktien-Trade** — sehr kleine, aber realistische Positionsgrößen, die im
+    Paper-Trading erst validiert werden, bevor größere Beträge bewegt werden.
+  - **Aktien-Besonderheit**: die tatsächliche Positionsgröße hängt zusätzlich vom Aktienkurs ab — es
+    können nur ganze Aktien gekauft werden (außer Flatex unterstützt Bruchstücke), das 1 %-Risikoziel
+    ist daher eine Obergrenze/Richtwert, kein exakt erreichbarer Wert bei jedem Titel.
+  - _(Anmerkung: "300%" wurde wie beim vorherigen "150%" als Tippfehler für 300 € gelesen — bitte
+    korrigieren, falls tatsächlich etwas anderes gemeint war.)_
 - **Cooldown**: max. **1 Arbeitswoche (5 Handelstage)** nach Verlustserie/Circuit-Breaker-Trigger — für
   beide Themen gleich (Komponente 9).
+- **Mindest-Chance-Risiko-Verhältnis**: **1:2** für beide Themen — ein Signal wird erst zum
+  Trade-Kandidaten, wenn das potenzielle Gewinnziel mindestens doppelt so weit entfernt ist wie der
+  Stop-Loss. Bewährter Standardwert, der bei den kleinen Positionsgrößen hier zusätzlich hilft, Gebühren/
+  Spread relativ zur Positionsgröße zu verkraften.
+- **Tagesverlust-Schwelle**: **3 %** des jeweiligen Kapitaltopfs (Krypto- und Aktien-Topf getrennt
+  betrachtet) — bei Erreichen pausiert der Handel im jeweiligen Thema für den Rest des Tages. Entspricht
+  bei 1 % Risiko pro Trade etwa 3 aufeinanderfolgenden Verlust-Trades als Tagesgrenze.
 - **Stop-Loss-ATR-Multiplikator** (Startwert, im Paper-Trading zu validieren): ATR(14) als Basis,
   **Aktien 2,5–3× ATR(14)** (mehr Spielraum für die 52-Wochen-Tief-Strategie, siehe unten),
   **Krypto 1,5–2× ATR(14)** (engerer Stop passend zum kurzen Zeithorizont — die höhere Volatilität ist
@@ -281,10 +295,12 @@ echtem Geld ausgelöst wird:
 - **Stop-Loss/Take-Profit**: gekoppelt an ATR (Average True Range), **Aktien 2,5–3× ATR(14)**,
   **Krypto 1,5–2× ATR(14)** — siehe Grundsatzentscheidungen oben; Startwert, wird im Paper-Trading
   validiert/justiert.
-- **Mindest-Chance-Risiko-Verhältnis** (z. B. 1:2) — ein Signal wird nur zum Trade-Kandidaten, wenn das
-  Verhältnis erreicht wird.
-- **Tagesverlust-Circuit-Breaker**: Handel pausiert automatisch, sobald eine definierte Verlustschwelle
-  am Tag erreicht ist.
+- **Mindest-Chance-Risiko-Verhältnis: 1:2** — ein Signal wird nur zum Trade-Kandidaten, wenn das
+  potenzielle Gewinnziel mindestens doppelt so weit entfernt ist wie der Stop-Loss (siehe
+  Grundsatzentscheidungen oben).
+- **Tagesverlust-Circuit-Breaker: 3 % des jeweiligen Kapitaltopfs** (Krypto- und Aktien-Topf getrennt) —
+  Handel pausiert automatisch für den Rest des Tages, sobald diese Schwelle erreicht ist (siehe
+  Grundsatzentscheidungen oben).
 - **Cooldown**: max. **1 Arbeitswoche (5 Handelstage)** nach Verlustserie/Circuit-Breaker-Trigger — für
   beide Themen gleich.
 - **Pflicht-Bestätigung**: ab einer bestimmten Positionsgröße muss Marko manuell bestätigen, bevor
